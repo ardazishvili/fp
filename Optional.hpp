@@ -1,4 +1,6 @@
+#include <functional>
 #include <iostream>
+#include <type_traits>
 
 template <typename A>
 class Optional {
@@ -14,6 +16,12 @@ class Optional {
 };
 
 template <typename T>
+struct is_optional : std::false_type {};
+
+template <typename T>
+struct is_optional<Optional<T>> : std::true_type {};
+
+template <typename T>
 Optional<T> identity1(T t) {
   return Optional<T>(t);
 }
@@ -23,19 +31,22 @@ Optional<T> make_optional(T t) {
   return Optional<T>();
 }
 
-auto compose_optional(auto f) {
+template <typename Ret, typename Arg,
+          typename = std::enable_if_t<is_optional<Ret>::value>>
+auto compose(Ret (*f)(Arg)) {
   return [f](auto a) { return f(a); };
 }
 
-template <typename... Ts>
-auto compose_optional(auto f, Ts... ts) {
+template <typename Ret, typename Arg,
+          typename = std::enable_if_t<is_optional<Ret>::value>, typename... Ts>
+auto compose(Ret (*f)(Arg), Ts... ts) {
   return [f, ts...](auto a) {
     auto b = f(a);
     if (!b.isValid()) {
       return make_optional(a);
     }
 
-    return compose_optional(ts...)(b.value());
+    return compose(ts...)(b.value());
   };
 }
 

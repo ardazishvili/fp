@@ -4,24 +4,31 @@
 #include <iostream>
 #include <iterator>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 template <typename A>
 using Writer = std::pair<A, std::string>;
 
+template <typename T>
+struct is_writer : std::false_type {};
+
+template <typename T>
+struct is_writer<Writer<T>> : std::true_type {};
+
 template <typename A>
 auto identity(A a) {
   return std::make_pair(a, std::string());
 }
 
-auto compose_writer(auto a) { return a; }
+auto compose(auto a) { return a; }
 
 template <typename... Ts>
-auto compose_writer(auto f1, Ts... ts) {
+auto compose(auto f1, Ts... ts) {
   return [f1, ts...](auto a) {
     auto [b, log1] = f1(a);
-    auto p = compose_writer(ts...)(b);
+    auto p = compose(ts...)(b);
     return std::make_pair(p.first, log1 + p.second);
   };
 }

@@ -17,12 +17,12 @@ Optional<double> reciprocal(double x) {
 
 int main() {
   {
-    auto [val, log] = compose_writer(is_even, negate, negate)(6);
+    auto [val, log] = compose(is_even, negate, negate)(6);
     assert(val == true);
     assert(log == "is_even Not so! Not so! ");
   }
   {
-    auto r = compose_optional(reciprocal, root, root)(0.0625);
+    auto r = compose(reciprocal, root, root)(0.0625);
     assert(r.isValid());
     assert(r.value() == 2);
   }
