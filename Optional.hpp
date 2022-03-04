@@ -1,5 +1,3 @@
-#include <functional>
-#include <initializer_list>
 #include <iostream>
 
 template <typename A>
@@ -39,4 +37,22 @@ auto compose_optional(auto f, Ts... ts) {
 
     return compose_optional(ts...)(b.value());
   };
+}
+
+template <typename T>
+auto mbind_optional(Optional<T> o, auto f) {
+  if (!o.isValid()) {
+    return Optional<T>();
+  }
+
+  return f(o.value());
+}
+
+template <typename T>
+auto operator|(Optional<T> o, auto f) {
+  if (!o.isValid()) {
+    return Optional<T>();
+  }
+
+  return f(o.value());
 }
