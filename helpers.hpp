@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tuple>
+
 template <typename F, typename... CapturedArgs>
 struct curry {
   curry(F f, CapturedArgs... args)

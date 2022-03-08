@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cmath>
 #include <string>
+#include <type_traits>
 
 #include "Optional.hpp"
 #include "Writer.hpp"
@@ -20,6 +21,12 @@ Optional<double> reciprocal(double x) {
 auto print(int a, bool b, std::string s) {
   return std::to_string(a) + " " + std::to_string(b) + " " + s;
 }
+
+auto foo(int a) { return a * 1; }
+struct S {
+  double operator()(char, int&);
+  float operator()(int) { return 1.0; }
+};
 
 int main() {
   {
@@ -62,5 +69,16 @@ int main() {
     assert(curried(1)(true, "s") == "1 1 s");
     assert(curried(1)(true)("s") == "1 1 s");
   }
+  {
+    auto f = [](int a) { return a * 2; };
+    assert(transform(f, Optional(2)) == Optional(4));
+  }
+
+  {
+    auto f = [](int a) { return a * 2; };
+    auto lifted = lift_optional(f);
+    assert(lifted(Optional(2)) == Optional(4));
+  }
+
   return 0;
 }
