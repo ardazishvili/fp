@@ -1,8 +1,10 @@
 #include <cassert>
 #include <cmath>
+#include <string>
 
 #include "Optional.hpp"
 #include "Writer.hpp"
+#include "helpers.hpp"
 
 Writer<bool> is_even(int n) { return std::make_pair(n % 2 == 0, "is_even "); }
 Writer<bool> negate(bool b) { return std::make_pair(!b, "Not so! "); }
@@ -13,6 +15,10 @@ Optional<double> root(double x) {
 
 Optional<double> reciprocal(double x) {
   return (x != 0) ? Optional<double>(1 / x) : Optional<double>();
+}
+
+auto print(int a, bool b, std::string s) {
+  return std::to_string(a) + " " + std::to_string(b) + " " + s;
 }
 
 int main() {
@@ -49,6 +55,12 @@ int main() {
     auto [val, log] = identity(6) | is_even | negate | negate;
     assert(val == true);
     assert(log == "is_even Not so! Not so! ");
+  }
+  {
+    auto curried = curry(print);
+    assert(curried(1, true, "s") == "1 1 s");
+    assert(curried(1)(true, "s") == "1 1 s");
+    assert(curried(1)(true)("s") == "1 1 s");
   }
   return 0;
 }

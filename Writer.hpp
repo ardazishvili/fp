@@ -1,12 +1,8 @@
-#include <algorithm>
-#include <cctype>
+#pragma once
+
 #include <functional>
-#include <iostream>
-#include <iterator>
 #include <string>
 #include <type_traits>
-#include <utility>
-#include <vector>
 
 template <typename A>
 using Writer = std::pair<A, std::string>;

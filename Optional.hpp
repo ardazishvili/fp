@@ -1,5 +1,5 @@
-#include <functional>
-#include <iostream>
+#pragma once
+
 #include <type_traits>
 
 template <typename A>
