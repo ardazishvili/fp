@@ -5,7 +5,7 @@
 
 #include "Optional.hpp"
 #include "Writer.hpp"
-#include "helpers.hpp"
+#include "generic.hpp"
 
 Writer<bool> is_even(int n) { return std::make_pair(n % 2 == 0, "is_even "); }
 Writer<bool> negate(bool b) { return std::make_pair(!b, "Not so! "); }
@@ -76,8 +76,20 @@ int main() {
 
   {
     auto f = [](int a) { return a * 2; };
-    auto lifted = lift_optional(f);
+    auto lifted = lift(f);
     assert(lifted(Optional(2)) == Optional(4));
+  }
+
+  {
+    auto f = [](int a) { return a * 2; };
+    assert(transform(f, std::make_pair(4, std::string())) ==
+           std::make_pair(8, std::string()));
+  }
+  {
+    auto f = [](int a) { return a * 2; };
+    auto lifted = lift(f);
+    assert(lifted(std::make_pair(4, std::string())) ==
+           std::make_pair(8, std::string()));
   }
 
   return 0;

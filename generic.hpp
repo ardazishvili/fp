@@ -2,6 +2,11 @@
 
 #include <tuple>
 
+template <typename F>
+auto lift(F f) {
+  return [f](auto w) { return transform(f, w); };
+}
+
 template <typename F, typename... CapturedArgs>
 struct curry {
   curry(F f, CapturedArgs... args)
