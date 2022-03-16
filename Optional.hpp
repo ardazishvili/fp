@@ -83,16 +83,13 @@ auto operator|(Optional<T> o, auto f) {
   return f(o.value());
 }
 
-template <typename F, typename T>
-auto transform(F f, Optional<T> o) {
-  using RetType = std::invoke_result<F, T>::type;
+template <typename F, template <typename> class T, typename D,
+          typename = std::enable_if_t<is_optional<T<D>>::value>>
+auto transform(F f, T<D> o) {
+  using inner = D;
+  using RetType = std::invoke_result<F, D>::type;
   if (!o.isValid()) {
     return Optional<RetType>();
   }
   return Optional(f(o.value()));
-}
-
-template <typename F>
-auto lift_optional(F f) {
-  return [f](auto o) { return transform(f, o); };
 }

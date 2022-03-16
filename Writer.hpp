@@ -40,3 +40,8 @@ Writer<T> operator|(Writer<T> w, auto f) {
   auto r = f(w.first);
   return std::pair(r.first, w.second + r.second);
 }
+
+template <typename F, typename T>
+auto transform(F f, Writer<T> w) {
+  return std::make_pair(f(w.first), w.second);
+}
