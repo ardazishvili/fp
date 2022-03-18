@@ -30,7 +30,7 @@ auto compose(auto f1, Ts... ts) {
 }
 
 template <typename T>
-Writer<T> mbind_writer(Writer<T> w, auto f) {
+Writer<T> mbind(Writer<T> w, auto f) {
   auto r = f(w.first);
   return std::pair(r.first, w.second + r.second);
 }
