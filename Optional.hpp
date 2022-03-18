@@ -37,7 +37,10 @@ template <typename T>
 struct is_optional<Optional<T>> : std::true_type {};
 
 template <typename T>
-Optional<T> identity1(T t) {
+constexpr bool is_optional_v = is_optional<T>::value;
+
+template <typename T>
+Optional<T> identity(T t) {
   return Optional<T>(t);
 }
 
@@ -47,13 +50,13 @@ Optional<T> make_optional(T t) {
 }
 
 template <typename Ret, typename Arg,
-          typename = std::enable_if_t<is_optional<Ret>::value>>
+          typename = std::enable_if_t<is_optional_v<Ret>>>
 auto compose(Ret (*f)(Arg)) {
   return [f](auto a) { return f(a); };
 }
 
 template <typename Ret, typename Arg,
-          typename = std::enable_if_t<is_optional<Ret>::value>, typename... Ts>
+          typename = std::enable_if_t<is_optional_v<Ret>>, typename... Ts>
 auto compose(Ret (*f)(Arg), Ts... ts) {
   return [f, ts...](auto a) {
     auto b = f(a);
@@ -65,10 +68,11 @@ auto compose(Ret (*f)(Arg), Ts... ts) {
   };
 }
 
-template <typename T>
-auto mbind_optional(Optional<T> o, auto f) {
+template <template <typename> class T, typename D,
+          typename = std::enable_if_t<is_optional_v<T<D>>>>
+auto mbind(T<D> o, auto f) {
   if (!o.isValid()) {
-    return Optional<T>();
+    return T<D>();
   }
 
   return f(o.value());
@@ -84,7 +88,7 @@ auto operator|(Optional<T> o, auto f) {
 }
 
 template <typename F, template <typename> class T, typename D,
-          typename = std::enable_if_t<is_optional<T<D>>::value>>
+          typename = std::enable_if_t<is_optional_v<T<D>>>>
 auto transform(F f, T<D> o) {
   using inner = D;
   using RetType = std::invoke_result<F, D>::type;
