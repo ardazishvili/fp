@@ -51,3 +51,19 @@ template <typename R, typename... Args>
 auto make_task(std::function<R(Args...)> f, Args... arg) {
   return Task(f, arg...);
 }
+
+template <typename T>
+auto mbind(T task, auto next_task) {
+  return next_task(task.get_result());
+}
+
+template <typename... Args>
+auto operator|(Task<Args...> task, auto next_task) {
+  return next_task(task.get_result());
+}
+
+template <typename F, typename T>
+auto transform(F f, T&& task) {
+  auto task_ret = task.get_result();
+  return make_task(f, task_ret);
+}
