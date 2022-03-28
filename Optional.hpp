@@ -1,15 +1,18 @@
 #pragma once
 
 #include <type_traits>
+#include <utility>
+
+#include "task.hpp"
 
 template <typename A>
 class Optional {
  public:
   using inner_type = A;
   Optional() : _is_valid(false) {}
-  explicit Optional(A a) : _value(a), _is_valid(true) {}
+  explicit Optional(A&& a) : _value(std::move(a)), _is_valid(true) {}
   bool isValid() const { return _is_valid; }
-  A value() const { return _value; }
+  const A& value() const { return _value; }
 
   template <typename T>
   friend bool operator==(const Optional<T>& o1, const Optional<T>& o2);
@@ -84,7 +87,11 @@ auto operator|(Optional<T> o, auto f) {
     return Optional<T>();
   }
 
-  return f(o.value());
+  if constexpr (is_task_v<T>) {
+    return f(o.value().get_result());
+  } else {
+    return f(o.value());
+  }
 }
 
 template <typename F, template <typename> class T, typename D,
