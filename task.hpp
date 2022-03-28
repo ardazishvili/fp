@@ -4,21 +4,23 @@
 #include <future>
 #include <memory>
 #include <optional>
+#include <type_traits>
 
-template <typename R, typename... Args>
+template <typename R = void, typename... Args>
 class Task {
  public:
+  Task() = default;
   explicit Task(std::function<R(Args...)> f)
       : task_(f), arg_(std::optional<Args...>()) {}
 
   Task(std::function<R(Args...)> f, Args... arg) : task_(f), arg_(arg...) {}
 
-  auto get_result(auto arg) {
+  auto get_result(auto arg) const {
     task_(arg);
     return task_.get_future().get();
   }
 
-  auto get_result() {
+  auto get_result() const {
     assert(arg_.has_value());
     task_(arg_.value());
     return task_.get_future().get();
@@ -26,8 +28,17 @@ class Task {
 
  private:
   std::optional<Args...> arg_;
-  std::packaged_task<R(Args...)> task_;
+  mutable std::packaged_task<R(Args...)> task_;
 };
+
+template <typename... Args>
+struct is_task : std::false_type {};
+
+template <typename... Args>
+struct is_task<Task<Args...>> : std::true_type {};
+
+template <typename T>
+constexpr bool is_task_v = is_task<T>::value;
 
 template <typename T>
 auto compose(T&& t) {
