@@ -14,7 +14,7 @@ template <typename T>
 struct is_writer<Writer<T>> : std::true_type {};
 
 template <typename A>
-auto identity(A a) {
+auto id_writer(A a) {
   return std::make_pair(a, std::string());
 }
 

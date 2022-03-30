@@ -35,6 +35,10 @@ add_executable( task_optional task_optional.cpp)
 target_link_libraries( task_optional gtest_main)
 target_include_directories(task_optional PRIVATE ${CMAKE_SOURCE_DIR})
 
+add_executable( optional_task optional_task.cpp)
+target_link_libraries( optional_task gtest_main)
+target_include_directories(optional_task PRIVATE ${CMAKE_SOURCE_DIR})
+
 include(GoogleTest)
 
 gtest_discover_tests(optional)
@@ -42,3 +46,4 @@ gtest_discover_tests(writer)
 gtest_discover_tests(generic)
 gtest_discover_tests(task)
 gtest_discover_tests(task_optional)
+gtest_discover_tests(optional_task)

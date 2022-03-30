@@ -16,13 +16,13 @@ TEST(WriterTest, Compose) {
 }
 
 TEST(WriterTest, Mbind) {
-  auto [val, log] = mbind(mbind(mbind(identity(6), is_even), negate), negate);
+  auto [val, log] = mbind(mbind(mbind(id_writer(6), is_even), negate), negate);
   ASSERT_TRUE(val);
   ASSERT_EQ(log, "is_even Not so! Not so! ");
 }
 
 TEST(WriterTest, PipeOperator) {
-  auto [val, log] = identity(6) | is_even | negate | negate;
+  auto [val, log] = id_writer(6) | is_even | negate | negate;
   ASSERT_TRUE(val);
   ASSERT_EQ(log, "is_even Not so! Not so! ");
 }

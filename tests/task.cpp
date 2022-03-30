@@ -12,19 +12,17 @@
 
 std::function square = [](double x) { return ::sqrt(x); };
 std::function multiply2 = [](double x) { return x * 2; };
-std::function iden = [](double x) { return x; };
 
 auto square_task(double x) { return make_task(square, x); }
 auto multiply2_task(double x) { return make_task(multiply2, x); }
-auto identity_task(double x) { return make_task(iden, x); }
 
 TEST(TaskTest, IdentityInit) {
-  auto value = make_task(iden, 42.0);
+  auto value = id_task(42.0);
   ASSERT_EQ(value.get_result(), 42);
 }
 
 TEST(TaskTest, IdentityNoInit) {
-  auto task = make_task(iden);
+  auto task = make_task(id);
   ASSERT_EQ(task.get_result(42.0), 42);
 }
 
@@ -34,12 +32,12 @@ TEST(TaskTest, Compose) {
 }
 
 TEST(TaskTest, Mbind) {
-  auto value = mbind(mbind(identity_task(8.0), multiply2_task), square_task);
+  auto value = mbind(mbind(id_task(8.0), multiply2_task), square_task);
   ASSERT_EQ(value.get_result(), 4);
 }
 
 TEST(TaskTest, PipeOperator) {
-  auto value = identity_task(8.0) | multiply2_task | square_task;
+  auto value = id_task(8.0) | multiply2_task | square_task;
   ASSERT_EQ(value.get_result(), 4);
 }
 
