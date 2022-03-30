@@ -1,4 +1,4 @@
-#include "Writer.hpp"
+#include "writer.hpp"
 
 #include <gtest/gtest.h>
 
