@@ -3,7 +3,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "task.hpp"
+#include "traits.hpp"
 
 template <typename A>
 class Optional {
@@ -34,21 +34,7 @@ bool operator==(const Optional<T>& o1, const Optional<T>& o2) {
 }
 
 template <typename T>
-struct is_optional : std::false_type {};
-
-template <typename T>
-struct is_optional<Optional<T>> : std::true_type {};
-
-template <typename T>
-constexpr bool is_optional_v = is_optional<T>::value;
-
-template <typename T>
-Optional<T> identity(T t) {
-  return Optional<T>(t);
-}
-
-template <typename T>
-Optional<T> make_optional(T t) {
+Optional<T> nothing() {
   return Optional<T>();
 }
 
@@ -64,7 +50,7 @@ auto compose(Ret (*f)(Arg), Ts... ts) {
   return [f, ts...](auto a) {
     auto b = f(a);
     if (!b.isValid()) {
-      return make_optional(a);
+      return nothing<decltype(a)>();
     }
 
     return compose(ts...)(b.value());
@@ -80,6 +66,8 @@ auto mbind(T<D> o, auto f) {
 
   return f(o.value());
 }
+
+auto id_optional = [](auto t) { return Optional(std::move(t)); };
 
 template <typename T>
 auto operator|(Optional<T> o, auto f) {

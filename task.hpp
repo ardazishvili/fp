@@ -2,11 +2,16 @@
 
 #include <cassert>
 #include <future>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <type_traits>
+#include <utility>
 
-template <typename R = void, typename... Args>
+#include "optional.hpp"
+#include "traits.hpp"
+
+template <typename R, typename... Args>
 class Task {
  public:
   Task() = default;
@@ -30,15 +35,6 @@ class Task {
   std::optional<Args...> arg_;
   mutable std::packaged_task<R(Args...)> task_;
 };
-
-template <typename... Args>
-struct is_task : std::false_type {};
-
-template <typename... Args>
-struct is_task<Task<Args...>> : std::true_type {};
-
-template <typename T>
-constexpr bool is_task_v = is_task<T>::value;
 
 template <typename T>
 auto compose(T&& t) {
@@ -68,9 +64,24 @@ auto mbind(T task, auto next_task) {
   return next_task(task.get_result());
 }
 
-template <typename... Args>
-auto operator|(Task<Args...> task, auto next_task) {
-  return next_task(task.get_result());
+std::function id = [](double x) { return x; };
+auto id_task(double x) { return make_task(id, x); }
+
+template <typename Ret, typename... Args>
+auto operator|(Task<Ret, Args...> task, auto next_task) {
+  if constexpr (is_optional_v<Ret>) {
+    auto result = task.get_result();
+    if (result.isValid()) {
+      return next_task(result.value());
+    } else {
+      std::function stub = [](Args... x) { return nothing<Args...>(); };
+      using rtype =
+          std::remove_reference_t<std::remove_cv_t<decltype(result.value())>>;
+      return make_task(stub, rtype());
+    }
+  } else {
+    return next_task(task.get_result());
+  }
 }
 
 template <typename F, typename T>
